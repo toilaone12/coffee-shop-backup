@@ -249,7 +249,7 @@
             })
         })
 
-        //quen mat khau 
+        //quen mat khau
         $('.forgot-password-customer').on('submit', (e) => {
             e.preventDefault();
             let formData = new FormData($('.forgot-password-customer')[0]);
@@ -464,10 +464,23 @@
             let codeDiscount = $('.fee-discount').attr('data-code');
             let subTotal = parseInt($('.total-product').text().replace(/[.,đ]/g, ''));
             let total = parseInt($('.total-cart').text().replace(/[.,đ]/g, ''));
-            if (feeShip == 0) {
+            let payment = parseInt($('.choose-payment:checked').data('type')) ? parseInt($('.choose-payment:checked').data('type')) : '';
+            if ($('.fee-ship').text() == 0) {
                 swalNotification(
                     'Thông báo đặt hàng',
                     'Bạn phải nhập địa chỉ để chúng tôi kiểm tra phí vận chuyển',
+                    'warning',
+                    () => {});
+            } else if (payment == 2 && address == '') {
+                swalNotification(
+                    'Thông báo đặt hàng',
+                    'Bạn phải nhập địa chỉ để chúng tôi kiểm tra phí vận chuyển',
+                    'warning',
+                    () => {});
+            } else if (payment == '') {
+                swalNotification(
+                    'Thông báo đặt hàng',
+                    'Bạn chưa chọn phương thức thanh toán',
                     'warning',
                     () => {});
             } else {
@@ -485,7 +498,8 @@
                     fee_discount: feeDiscount,
                     code_discount: codeDiscount,
                     subtotal: subTotal,
-                    total: total
+                    total: total,
+                    payment: payment
                 }
                 callAjax(url, method, data, headers,
                     (data) => {
@@ -525,30 +539,36 @@
                         if ($('.error-privacy').text() != '') {
                             $('.error-privacy').text('');
                         }
-                        if (data.res == 'fail') { //loi
-                            let html = `<span class="fs-14 d-block text-secondary mb-2">${data.title}</span>`;
-                            // data.title.forEach((title) => {
-                            //     html += `<span class="fs-14 d-block text-secondary mb-2">${title}</span>`
-                            // })
-                            console.log(data.title);
-                            swalNotiWithHTML(data.status, html, data.icon, () => {
-                                location.href = '{{route("cart.home")}}'
-                            });
-                        } else {
-                            let url = data.code;
-                            let dataArray = [{
-                                    'id': data.id,
-                                    'text': 'Có người đặt hàng',
-                                    'link': "http://127.0.0.1:8000/admin/order/detail/" + url,
-                                },
-                                // Thêm các đối tượng khác vào mảng nếu cần thiết
-                            ];
-                            // Chuyển đổi mảng thành chuỗi JSON
-                            let dataToSend = JSON.stringify(dataArray);
-                            socket.send(dataToSend);
-                            swalNotification(data.title, data.status, data.icon, () => {
-                                location.href = '{{route("page.home")}}'
-                            })
+                        if(data.type == 2){
+                            location.href = data.url;
+                        }else{
+                            if (data.res == 'fail') { //loi
+                                let html = `<span class="fs-14 d-block text-secondary mb-2">${data.title}</span>`;
+                                // data.title.forEach((title) => {
+                                //     html += `<span class="fs-14 d-block text-secondary mb-2">${title}</span>`
+                                // })
+                                console.log(data.title);
+                                swalNotiWithHTML(data.status, html, data.icon, () => {
+                                    location.href = '{{route("cart.home")}}'
+                                });
+                            } else {
+                                let url = data.code;
+                                console.log(data);
+
+                                // let dataArray = [{
+                                //         'id': data.id,
+                                //         'text': 'Có người đặt hàng',
+                                //         'link': "http://127.0.0.1:8000/admin/order/detail/" + url,
+                                //     },
+                                //     // Thêm các đối tượng khác vào mảng nếu cần thiết
+                                // ];
+                                // // Chuyển đổi mảng thành chuỗi JSON
+                                // let dataToSend = JSON.stringify(dataArray);
+                                // socket.send(dataToSend);
+                                // swalNotification(data.title, data.status, data.icon, () => {
+                                //     location.href = '{{route("page.home")}}'
+                                // })
+                            }
                         }
                     }
                 },
@@ -638,7 +658,7 @@
         $('.review-product').on('submit', (e) => {
             e.preventDefault();
             let formData = new FormData($('.review-product')[0]);
-            let choose = $('.choose-star').attr('data-choose'); //attr: no se tra ve || data: no se luu gia tri 
+            let choose = $('.choose-star').attr('data-choose'); //attr: no se tra ve || data: no se luu gia tri
             formData.append('star', choose);
             let url = "{{route('review.evalute')}}";
             let method = 'POST';

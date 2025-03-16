@@ -159,8 +159,8 @@ $(document).ready(function(){
         let fileName = $(this).val().split('\\').pop();
         $('.imagePath').text(fileName);
         $('.img-thumbnail').attr('src',URL.createObjectURL(e.target.files[0])) //tao 1 file anh tam thoi
-    })  
-    //phan hien mat khau 
+    })
+    //phan hien mat khau
     $('.password-toggle-btn').click(function(){
         if($('#password-customer').attr('type') === 'password'){
             $('#password-customer').attr('type','text');
@@ -178,5 +178,21 @@ $(document).ready(function(){
             $('#repassword-customer').attr('type','password');
             $(this).find('i').addClass('icon-eye').removeClass('icon-eye-slash');
         }
+    })
+     //chon phuong thuc thanh toan de hien thi dia chi van chuyen
+     $('.choose-payment').on('change',function(e){
+        e.preventDefault();
+        $(this).prop('checked');
+        let type = $(this).attr('data-type');
+        if(type == 2 || type == 3){
+            if($('.modal-fee').hasClass('d-none')) $('.modal-fee').removeClass('d-none')
+        }
+        if(type == 1){
+            $('.address-order').val('');
+            $('.fee-ship').text('+0 đ');
+            $('.modal-fee').addClass('d-none')
+        }
+        $('.input-radio > .caption').addClass('d-none')
+        $(this).siblings('.caption').removeClass('d-none')
     })
 })

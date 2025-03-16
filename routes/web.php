@@ -72,7 +72,7 @@ Route::prefix('admin')->group(function(){
         Route::post('/update',[CategoryController::class, 'update'])->name('category.update');
         Route::post('/delete',[CategoryController::class, 'delete'])->name('category.delete');
         Route::post('/delete-all',[CategoryController::class, 'deleteAll'])->name('category.deleteAll');
-        
+
     });
     //San pham
     Route::prefix('product')->group(function(){
@@ -223,7 +223,7 @@ Route::prefix('page')->group(function(){
         Route::get('/menu',[ProductController::class,'menu'])->name('product.menu');
         Route::get('/{slug}',[ProductController::class,'detail'])->name('product.detail');
     });
-    //danh gia 
+    //danh gia
     Route::prefix('review')->group(function(){
         Route::post('/evalute',[ReviewController::class,'evalute'])->name('review.evalute');
     });
@@ -236,7 +236,7 @@ Route::prefix('page')->group(function(){
         Route::get('/home',[CustomerController::class,'home'])->name('customer.home');
         Route::post('/update',[CustomerController::class,'update'])->name('customer.update');
         Route::post('/updatePassword',[CustomerController::class,'updatePassword'])->name('customer.updatePassword');
-    }); 
+    });
     //gio hang
     Route::prefix('cart')->group(function(){
         Route::get('/',[CartController::class,'home'])->name('cart.home');
@@ -264,6 +264,7 @@ Route::prefix('page')->group(function(){
         Route::get('/',[OrderController::class,'home'])->name('order.home');
         Route::post('/apply',[OrderController::class,'apply'])->name('order.apply');
         Route::post('/order',[OrderController::class,'order'])->name('order.order');
+        Route::get('/handle',[OrderController::class,'handle'])->name('order.handle');
         Route::get('/history',[OrderController::class,'history'])->name('order.history');
         Route::get('/detail/{code}',[OrderController::class,'detail'])->name('order.detail');
     });

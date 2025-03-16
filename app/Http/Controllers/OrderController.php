@@ -35,7 +35,7 @@ class OrderController extends Controller
     function list()
     {
         $title = 'Danh sách đơn hàng';
-        $list = Order::orderBy('updated_at','desc')->get();
+        $list = Order::orderBy('updated_at', 'desc')->get();
         $notifications = Notification::where('id_account', request()->cookie('id_account'))->orderBy('id_notification', 'desc')->limit(7)->get();
         $all = Notification::where('id_account', request()->cookie('id_account'))->get();
         $dot = false;
@@ -203,7 +203,6 @@ class OrderController extends Controller
         $validation = Validator::make($data, [
             'fullname_order' => ['required', 'regex:/^[a-zA-Z\sÀ-Ỹà-ỹ-]+$/u'],
             'phone_order' => ['required', 'regex:/^(03[2-9]|05[6-9]|07[06-9]|08[1-9]|09[0-9]|01[2-9])[0-9]{7}$/', 'max:10'],
-            'address_order' => ['required'],
             'email_order' => ['required'],
         ], [
             'fullname_order.required' => 'Họ tên người đặt không được để trống',
@@ -211,16 +210,16 @@ class OrderController extends Controller
             'phone_order.regex' => 'Số điện thoại người đặt phải là số',
             'phone_order.required' => 'Số điện thoại người đặt không được để trống',
             'phone_order.max' => 'Số điện thoại người đặt phải là số điện thoại tại Việt Nam',
-            'address_order.required' => 'Địa chỉ người đặt không được để trống',
             'email_order.required' => 'Email người đặt không được để trống',
         ]);
         if (!$validation->fails()) {
             $order = [
                 'fullname' => $data['fullname_order'],
                 'phone' => $data['phone_order'],
-                'address' => $data['address_order'],
+                'address' => empty($data['address_order']) ? 'Khu TT3B, 17, Khu đô thị Phùng Khoang, Nam Từ Liêm, Hà Nội' : $data['address_order'],
                 'email' => $data['email_order'],
                 'fee_ship' => $data['fee_ship'],
+                'payment' => $data['payment'],
                 'code_discount' => isset($data['code_discount']) ? $data['code_discount'] : '',
                 'fee_discount' => $data['fee_discount'],
                 'subtotal' => $data['subtotal'],
@@ -251,12 +250,11 @@ class OrderController extends Controller
             $customer = '';
             $isDot = '';
             $notifications = array();
-
             if (request()->cookie('id_customer')) {
                 $carts = Cart::where('id_customer', request()->cookie('id_customer'))->get();
                 $customer = Customer::find(request()->cookie('id_customer'));
-                $notifications = Notification::where('id_customer', request()->cookie('id_customer'))->orderBy('id_notification','desc')->limit(7)->get();
-                $isDot = Notification::where('id_customer', request()->cookie('id_customer'))->where('is_read',0)->orderBy('id_notification','desc')->get();
+                $notifications = Notification::where('id_customer', request()->cookie('id_customer'))->orderBy('id_notification', 'desc')->limit(7)->get();
+                $isDot = Notification::where('id_customer', request()->cookie('id_customer'))->where('is_read', 0)->orderBy('id_notification', 'desc')->get();
                 foreach ($carts as $key => $one) {
                     $subtotal += intval($one['price_product']);
                 }
@@ -282,31 +280,66 @@ class OrderController extends Controller
         if (isset($data['privacy'])) {
             $codeOrder = $this->randomCode();
             $notis = [];
-            //co tai khoan
-            if ($idCustomer) {
-                $handle = $this->handleOrderWithDB($idCustomer, $codeOrder, $order);
-                $notis = $handle;
-                //khong tai khoan
-            } else {
-                $handle = $this->handleOrderWithSession($idCustomer, $codeOrder, $order, $cart);
-                $notis = $handle;
-            }
-            if ($notis['res'] == 'success') {
-                $randomAccount = Account::where('is_online', 1)->inRandomOrder()->first();
-                if ($randomAccount) {
-                    $randomId = $randomAccount->id_account;
-                    // dd($randomId);
-                    // Sử dụng $randomId cho mục đích của bạn
-                    $request->session()->forget('order');
-                    $request->session()->forget('cart');
-                    $request->session()->flush();
-                    return response(['res' => 'success', 'title' => 'Thông báo đặt hàng', 'icon' => 'success', 'status' => 'Đặt hàng thành công!', 'code' => $codeOrder, 'id' => $randomId]);
+            if($order['payment'] == 2){
+                session()->put('order.code',$codeOrder);
+                $url = $this->handlePayment($order['total'],$codeOrder);
+                return response(['res' => 'success', 'type' => 2, 'url' => $url]);
+            }else{
+                //co tai khoan
+                if ($idCustomer) {
+                    $handle = $this->handleOrderWithDB($idCustomer, $codeOrder, $order);
+                    $notis = $handle;
+                    //khong tai khoan
+                } else {
+                    $handle = $this->handleOrderWithSession($idCustomer, $codeOrder, $order, $cart);
+                    $notis = $handle;
                 }
-            } else {
-                return response(['res' => 'fail', 'title' => 'Thông báo đặt hàng', 'icon' => 'error', 'status' => $notis['status']]);
+                if ($notis['res'] == 'success') {
+                    $randomAccount = Account::where('is_online', 1)->inRandomOrder()->first();
+                    if ($randomAccount) {
+                        $randomId = $randomAccount->id_account;
+                        // dd($randomId);
+                        // Sử dụng $randomId cho mục đích của bạn
+                        $request->session()->forget('order');
+                        $request->session()->forget('cart');
+                        $request->session()->flush();
+                        return response(['res' => 'success', 'type' => 1, 'title' => 'Thông báo đặt hàng', 'icon' => 'success', 'status' => 'Đặt hàng thành công!', 'code' => $codeOrder, 'id' => $randomId]);
+                    }
+                } else {
+                    return response(['res' => 'fail', 'title' => 'Thông báo đặt hàng', 'icon' => 'error', 'status' => $notis['status']]);
+                }
             }
         } else {
             return response(['res' => 'warning', 'title' => 'Hãy đồng ý với yêu cầu!']);
+        }
+    }
+
+    function handle() {
+        $cart = session('cart');
+        $order = session('order');
+        $idCustomer = request()->cookie('id_customer') ? request()->cookie('id_customer') : 0;
+        //co tai khoan
+        if ($idCustomer) {
+            $handle = $this->handleOrderWithDB($idCustomer, $order['code'], $order);
+            $notis = $handle;
+            //khong tai khoan
+        } else {
+            $handle = $this->handleOrderWithSession($idCustomer, $order['code'], $order, $cart);
+            $notis = $handle;
+        }
+        if ($notis['res'] == 'success') {
+            $randomAccount = Account::where('is_online', 1)->inRandomOrder()->first();
+            if ($randomAccount) {
+                $randomId = $randomAccount->id_account;
+                // dd($randomId);
+                // Sử dụng $randomId cho mục đích của bạn
+                session()->forget('order');
+                session()->forget('cart');
+                session()->flush();
+                return redirect()->route('cart.home');
+            }
+        } else {
+            return response(['res' => 'fail', 'title' => 'Thông báo đặt hàng', 'icon' => 'error', 'status' => $notis['status']]);
         }
     }
 
@@ -322,7 +355,7 @@ class OrderController extends Controller
         $isDot = Notification::where('id_customer', request()->cookie('id_customer'))->where('is_read', 0)->orderBy('id_notification', 'desc')->get();
         $parentCategorys = Category::where('id_parent_category', 0)->get();
         $childCategorys = Category::where('id_parent_category', '!=', 0)->get();
-        return view('order.history', compact('customer','title', 'parentCategorys', 'childCategorys', 'carts', 'orders', 'notifications', 'isDot'));
+        return view('order.history', compact('customer', 'title', 'parentCategorys', 'childCategorys', 'carts', 'orders', 'notifications', 'isDot'));
     }
 
     function detail($code)
@@ -339,7 +372,7 @@ class OrderController extends Controller
         $status = $order->status_order;
         $parentCategorys = Category::where('id_parent_category', 0)->get();
         $childCategorys = Category::where('id_parent_category', '!=', 0)->get();
-        return view('order.detail', compact('customer','title', 'parentCategorys', 'childCategorys', 'carts', 'order', 'orderDetail', 'status', 'notifications', 'isDot'));
+        return view('order.detail', compact('customer', 'title', 'parentCategorys', 'childCategorys', 'carts', 'order', 'orderDetail', 'status', 'notifications', 'isDot'));
     }
 
     function change(Request $request)
@@ -577,6 +610,7 @@ class OrderController extends Controller
             'subtotal_order' => $order['subtotal'],
             'fee_ship' => $order['fee_ship'],
             'fee_discount' => $order['fee_discount'],
+            'payment_order' => $order['payment'] == 1 ? 'Thanh toán tại cửa hàng' : ($order['payment'] == 2 ? 'Thanh toán bằng VNPAY' : 'Thanh toán bằng tiền mặt sau khi nhận hàng'),
             'total_order' => $order['total'],
             'email_order' => $order['email'],
             'status_order' => 0,
@@ -842,16 +876,16 @@ class OrderController extends Controller
                     $enoughProduct = intval($quantityIngredient / $quantityComponentConvert);
                     $quantityComsumptions = $quantityIngredient - ($quantityComponentConvert * $quantity); //so luong tieu thu
                 }
-                if($isHandle){
+                if ($isHandle) {
                     // dd(1);
                     $ingredient->quantity_ingredient = $quantityComsumptions;
                     $updateIngredients = $ingredient->save();
-                    if($updateIngredients){
+                    if ($updateIngredients) {
                         $arrIngredients += ['res' => 'true'];
-                    }else{
+                    } else {
                         $arrIngredients += ['res' => 'false', 'status' => 'Lỗi truy vấn'];
                     }
-                }else{
+                } else {
                     // dd(2);
                     $arrIngredients[$one->id_ingredient] = [
                         'nameProduct' => $name,
@@ -908,6 +942,73 @@ class OrderController extends Controller
             ];
             Notification::create($noti1);
             return "Message sent successfully";
+        }
+    }
+
+    function handlePayment($total,$code)
+    {
+        $totalOrder = preg_replace('/[^0-9\-]/', '', $total);
+        $vnp_TmnCode = "S4VUE5JO"; //Website ID in VNPAY System
+        $vnp_HashSecret = "DIXPZ7P9YO2WQM60F4C0MZQT03XGOXJI"; //Secret key
+        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        $vnp_Returnurl = route('order.handle');
+        $vnp_TxnRef = $code; //Mã đơn hàng. Trong thực tế Merchant cần insert đơn hàng vào DB và gửi mã này sang VNPAY
+        $vnp_OrderInfo = "Thanh toán bằng VNPAY";
+        $vnp_OrderType = "billpayment";
+        $vnp_Amount = $totalOrder * 100;
+        $vnp_Locale = 'vn';
+        $vnp_BankCode = 'NCB';
+        $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+        //Billing
+        $inputData = array(
+            "vnp_Version" => "2.1.0",
+            "vnp_TmnCode" => $vnp_TmnCode,
+            "vnp_Amount" => $vnp_Amount,
+            "vnp_Command" => "pay",
+            "vnp_CreateDate" => date('YmdHis'),
+            "vnp_CurrCode" => "VND",
+            "vnp_IpAddr" => $vnp_IpAddr,
+            "vnp_Locale" => $vnp_Locale,
+            "vnp_OrderInfo" => $vnp_OrderInfo,
+            "vnp_OrderType" => $vnp_OrderType,
+            "vnp_ReturnUrl" => $vnp_Returnurl,
+            "vnp_TxnRef" => $vnp_TxnRef,
+        );
+        if (isset($vnp_BankCode) && $vnp_BankCode != "") {
+            $inputData['vnp_BankCode'] = $vnp_BankCode;
+        }
+        if (isset($vnp_Bill_State) && $vnp_Bill_State != "") {
+            $inputData['vnp_Bill_State'] = $vnp_Bill_State;
+        }
+        ksort($inputData);
+        $query = "";
+        $i = 0;
+        $hashdata = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashdata .= urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+            $query .= urlencode($key) . "=" . urlencode($value) . '&';
+        }
+
+        $vnp_Url = $vnp_Url . "?" . $query;
+        if (isset($vnp_HashSecret)) {
+            $vnpSecureHash =   hash_hmac('sha512', $hashdata, $vnp_HashSecret); //
+            $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+        }
+        $returnData = array(
+            'code' => '00',
+            'message' => 'success',
+            'data' => $vnp_Url
+        );
+        if ($code != "") {
+            return $vnp_Url;
+            die();
+        } else {
+            return json_encode($returnData);
         }
     }
 }
