@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th12 21, 2023 lúc 05:07 PM
--- Phiên bản máy phục vụ: 10.4.25-MariaDB
--- Phiên bản PHP: 7.4.30
+-- Thời gian đã tạo: Th3 17, 2025 lúc 02:31 PM
+-- Phiên bản máy phục vụ: 10.4.32-MariaDB
+-- Phiên bản PHP: 8.1.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -29,10 +29,10 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `account` (
   `id_account` int(10) UNSIGNED NOT NULL,
-  `fullname_account` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `username_account` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email_account` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password_account` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fullname_account` varchar(255) NOT NULL,
+  `username_account` varchar(255) NOT NULL,
+  `email_account` varchar(255) NOT NULL,
+  `password_account` text NOT NULL,
   `otp_account` int(11) NOT NULL,
   `id_role` int(11) NOT NULL,
   `is_online` tinyint(4) NOT NULL,
@@ -58,14 +58,22 @@ CREATE TABLE `cart` (
   `id_cart` int(10) UNSIGNED NOT NULL,
   `id_customer` int(11) NOT NULL,
   `id_product` int(11) NOT NULL,
-  `image_product` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name_product` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_product` text NOT NULL,
+  `name_product` varchar(255) NOT NULL,
   `quantity_product` int(11) NOT NULL,
   `price_product` int(11) NOT NULL,
-  `note_product` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `note_product` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `cart`
+--
+
+INSERT INTO `cart` (`id_cart`, `id_customer`, `id_product`, `image_product`, `name_product`, `quantity_product`, `price_product`, `note_product`, `created_at`, `updated_at`) VALUES
+(53, 2, 3, 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 33, 1155000, NULL, '2025-03-17 11:55:48', '2025-03-17 13:28:37'),
+(55, 2, 1, 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 22, 770000, NULL, '2025-03-17 13:21:34', '2025-03-17 13:28:12');
 
 -- --------------------------------------------------------
 
@@ -75,9 +83,9 @@ CREATE TABLE `cart` (
 
 CREATE TABLE `category` (
   `id_category` int(10) UNSIGNED NOT NULL,
-  `name_category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_category` varchar(255) NOT NULL,
   `id_parent_category` int(11) NOT NULL,
-  `slug_category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `slug_category` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -117,8 +125,8 @@ INSERT INTO `category` (`id_category`, `name_category`, `id_parent_category`, `s
 
 CREATE TABLE `coupon` (
   `id_coupon` int(10) UNSIGNED NOT NULL,
-  `name_coupon` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `code_coupon` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_coupon` varchar(255) NOT NULL,
+  `code_coupon` varchar(255) NOT NULL,
   `quantity_coupon` int(11) NOT NULL,
   `type_coupon` tinyint(4) NOT NULL,
   `discount_coupon` int(11) NOT NULL,
@@ -147,11 +155,11 @@ INSERT INTO `coupon` (`id_coupon`, `name_coupon`, `code_coupon`, `quantity_coupo
 
 CREATE TABLE `customer` (
   `id_customer` int(10) UNSIGNED NOT NULL,
-  `image_customer` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name_customer` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email_customer` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `phone_customer` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `password_customer` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_customer` text NOT NULL,
+  `name_customer` varchar(255) NOT NULL,
+  `email_customer` varchar(255) DEFAULT NULL,
+  `phone_customer` varchar(10) DEFAULT NULL,
+  `password_customer` text NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -201,8 +209,8 @@ CREATE TABLE `detail_notes` (
   `id_detail` int(10) UNSIGNED NOT NULL,
   `id_note` int(11) NOT NULL,
   `id_unit` int(11) NOT NULL,
-  `code_note` varchar(6) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name_ingredient` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code_note` varchar(6) NOT NULL,
+  `name_ingredient` varchar(255) NOT NULL,
   `quantity_ingredient` float NOT NULL,
   `price_ingredient` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -230,64 +238,15 @@ CREATE TABLE `detail_orders` (
   `id_detail` int(10) UNSIGNED NOT NULL,
   `id_order` int(11) NOT NULL,
   `id_product` int(11) NOT NULL,
-  `code_order` varchar(6) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `image_product` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name_product` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code_order` varchar(6) NOT NULL,
+  `image_product` text NOT NULL,
+  `name_product` varchar(255) NOT NULL,
   `quantity_product` int(11) NOT NULL,
   `price_product` int(11) NOT NULL,
-  `note_product` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `note_product` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Đang đổ dữ liệu cho bảng `detail_orders`
---
-
-INSERT INTO `detail_orders` (`id_detail`, `id_order`, `id_product`, `code_order`, `image_product`, `name_product`, `quantity_product`, `price_product`, `note_product`, `created_at`, `updated_at`) VALUES
-(41, 41, 1, 'B88DCB', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 7, 245000, 'a', '2023-10-31 08:52:50', '2023-10-31 08:52:50'),
-(42, 41, 3, 'B88DCB', 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 8, 280000, 'b', '2023-10-31 08:52:50', '2023-10-31 08:52:50'),
-(43, 42, 3, '28J27Q', 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 1, 35000, 'it duong', '2023-10-31 09:26:07', '2023-10-31 09:26:07'),
-(44, 43, 4, 'IZ4VFN', 'storage/product/plain-croissant-1694705119.jpg', 'Plain Croissant', 2, 56000, NULL, '2023-11-01 16:07:31', '2023-11-01 16:07:31'),
-(45, 44, 1, 'HMLJEE', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 1, 35000, NULL, '2023-11-01 16:15:13', '2023-11-01 16:15:13'),
-(46, 45, 1, '703NZG', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 2, 70000, NULL, '2023-11-01 16:23:43', '2023-11-01 16:23:43'),
-(47, 45, 3, '703NZG', 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 5, 175000, NULL, '2023-11-01 16:23:43', '2023-11-01 16:23:43'),
-(48, 46, 8, 'XF2JZS', 'storage/product/ca-phe-kem-beo-1698938540.jpg', 'Cà phê kem béo', 2, 100000, NULL, '2023-11-02 15:46:41', '2023-11-02 15:46:41'),
-(49, 46, 5, 'XF2JZS', 'storage/product/ca-phe-bac-xiu-1698938349.jpg', 'Cà phê Bạc xỉu', 3, 120000, NULL, '2023-11-02 15:46:41', '2023-11-02 15:46:41'),
-(50, 47, 6, '97F655', 'storage/product/almond-croissant-1698938426.jpg', 'Almond Croissant', 3, 105000, NULL, '2023-11-02 15:48:30', '2023-11-02 15:48:30'),
-(51, 47, 7, '97F655', 'storage/product/ham-cheese-croissant-1698938486.jpg', 'Ham & Cheese Croissant', 3, 105000, NULL, '2023-11-02 15:48:30', '2023-11-02 15:48:30'),
-(52, 48, 3, 'B4SWSQ', 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 1, 35000, NULL, '2023-11-02 16:00:37', '2023-11-02 16:00:37'),
-(53, 48, 5, 'B4SWSQ', 'storage/product/ca-phe-bac-xiu-1698938349.jpg', 'Cà phê Bạc xỉu', 1, 40000, NULL, '2023-11-02 16:00:37', '2023-11-02 16:00:37'),
-(54, 48, 9, 'B4SWSQ', 'storage/product/bacon-cheese-baguette-1698938583.jpg', 'Bacon & Cheese Baguette', 2, 78000, NULL, '2023-11-02 16:00:37', '2023-11-02 16:00:37'),
-(55, 49, 9, '5FUNN5', 'storage/product/bacon-cheese-baguette-1698938583.jpg', 'Bacon & Cheese Baguette', 1, 39000, NULL, '2023-11-02 16:04:30', '2023-11-02 16:04:30'),
-(56, 49, 10, '5FUNN5', 'storage/product/charsiu-baguette-1698938663.jpg', 'Charsiu Baguette', 1, 39000, NULL, '2023-11-02 16:04:30', '2023-11-02 16:04:30'),
-(57, 50, 1, 'UCSTGD', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 3, 105000, NULL, '2023-11-05 16:55:30', '2023-11-05 16:55:30'),
-(58, 50, 5, 'UCSTGD', 'storage/product/ca-phe-bac-xiu-1698938349.jpg', 'Cà phê Bạc xỉu', 1, 40000, NULL, '2023-11-05 16:55:30', '2023-11-05 16:55:30'),
-(59, 50, 7, 'UCSTGD', 'storage/product/ham-cheese-croissant-1698938486.jpg', 'Ham & Cheese Croissant', 1, 35000, NULL, '2023-11-05 16:55:30', '2023-11-05 16:55:30'),
-(60, 50, 11, 'UCSTGD', 'storage/product/chocolate-croissant-1698938716.jpg', 'Chocolate Croissant', 1, 35000, NULL, '2023-11-05 16:55:30', '2023-11-05 16:55:30'),
-(61, 50, 4, 'UCSTGD', 'storage/product/plain-croissant-1694705119.jpg', 'Plain Croissant', 1, 28000, NULL, '2023-11-05 16:55:30', '2023-11-05 16:55:30'),
-(62, 51, 3, 'EVFXC1', 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 1, 35000, NULL, '2023-11-24 16:54:12', '2023-11-24 16:54:12'),
-(63, 52, 5, 'BB9WEM', 'storage/product/ca-phe-bac-xiu-1698938349.jpg', 'Cà phê Bạc xỉu', 1, 40000, NULL, '2023-11-24 16:56:37', '2023-11-24 16:56:37'),
-(64, 53, 5, 'JZH21S', 'storage/product/ca-phe-bac-xiu-1698938349.jpg', 'Cà phê Bạc xỉu', 1, 40000, NULL, '2023-11-24 17:03:35', '2023-11-24 17:03:35'),
-(65, 54, 1, '22P1L6', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 1, 35000, NULL, '2023-11-27 14:34:35', '2023-11-27 14:34:35'),
-(66, 55, 12, '34AQI4', 'storage/product/tiramisu-1698938830.jpg', 'Tiramisu', 2, 80000, NULL, '2023-11-27 15:02:32', '2023-11-27 15:02:32'),
-(67, 56, 1, 'B1MWG2', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 22, 770000, NULL, '2023-11-30 16:50:10', '2023-11-30 16:50:10'),
-(68, 56, 3, 'B1MWG2', 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 27, 945000, NULL, '2023-11-30 16:50:10', '2023-11-30 16:50:10'),
-(69, 57, 1, 'UV50IH', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 1, 35000, NULL, '2023-12-02 18:12:20', '2023-12-03 16:28:37'),
-(70, 57, 3, 'UV50IH', 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 1, 35000, NULL, '2023-12-02 18:12:20', '2023-12-02 18:12:20'),
-(71, 57, 5, 'UV50IH', 'storage/product/ca-phe-bac-xiu-1698938349.jpg', 'Cà phê Bạc xỉu', 4, 160000, NULL, '2023-12-02 18:12:20', '2023-12-03 16:17:43'),
-(72, 58, 1, 'VF6Q1I', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 1, 35000, NULL, '2023-12-14 01:57:50', '2023-12-14 01:57:50'),
-(73, 59, 17, 'USM7PL', 'storage/product/chicken-sandwich-1702518321.jpg', 'Chicken Sandwich', 3, 147000, NULL, '2023-12-14 01:58:42', '2023-12-14 01:58:42'),
-(74, 59, 18, 'USM7PL', 'storage/product/sousvide-beef-salad-1702518416.jpg', 'Sousvide Beef Salad', 2, 158000, NULL, '2023-12-14 01:58:42', '2023-12-14 01:58:42'),
-(75, 60, 3, '927EJ1', 'storage/product/ca-phe-nau-1693817752.jpg', 'Cà phê nâu', 1, 35000, '123123', '2023-12-14 01:59:36', '2023-12-14 01:59:36'),
-(76, 60, 6, '927EJ1', 'storage/product/almond-croissant-1698938426.jpg', 'Almond Croissant', 1, 35000, NULL, '2023-12-14 01:59:36', '2023-12-14 01:59:36'),
-(77, 61, 1, '9CELRO', 'storage/product/ca-phe-den-1692888289.jpg', 'Cà phê đen', 1, 35000, NULL, '2023-12-14 02:15:34', '2023-12-14 02:15:34'),
-(78, 61, 5, '9CELRO', 'storage/product/ca-phe-bac-xiu-1698938349.jpg', 'Cà phê Bạc xỉu', 3, 120000, 'avad', '2023-12-14 02:15:34', '2023-12-14 02:15:34'),
-(79, 62, 6, 'CGG2B2', 'storage/product/almond-croissant-1698938426.jpg', 'Almond Croissant', 5, 175000, NULL, '2023-12-15 13:52:21', '2023-12-15 13:52:21'),
-(80, 63, 11, 'YDR4AC', 'storage/product/chocolate-croissant-1698938716.jpg', 'Chocolate Croissant', 3, 105000, 'avc', '2023-12-15 13:53:09', '2023-12-15 13:53:09'),
-(81, 64, 20, 'TP7I6M', 'storage/product/harper-snack-set-no3-1702518626.jpg', 'Harper Snack Set No.3', 3, 267000, NULL, '2023-12-15 14:13:58', '2023-12-15 14:13:58'),
-(82, 65, 19, 'GRIWGA', 'storage/product/harper-snack-set-no2-1702518471.jpg', 'Harper Snack Set No.2', 1, 89000, NULL, '2023-12-15 14:48:47', '2023-12-15 14:48:47'),
-(83, 66, 22, 'QAGA2R', 'storage/product/harper-4-1702653507.jpg', 'harper 4', 5, 400000, 'ádasdád', '2023-12-15 15:23:21', '2023-12-15 15:23:21');
 
 -- --------------------------------------------------------
 
@@ -298,7 +257,7 @@ INSERT INTO `detail_orders` (`id_detail`, `id_order`, `id_product`, `code_order`
 CREATE TABLE `fee` (
   `id_fee` int(10) UNSIGNED NOT NULL,
   `radius_fee` int(11) NOT NULL,
-  `weather_condition` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `weather_condition` varchar(255) NOT NULL,
   `fee` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -325,7 +284,7 @@ INSERT INTO `fee` (`id_fee`, `radius_fee`, `weather_condition`, `fee`, `created_
 CREATE TABLE `gallery` (
   `id_gallery` int(10) UNSIGNED NOT NULL,
   `id_product` int(11) NOT NULL,
-  `image_gallery` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_gallery` text NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -351,7 +310,7 @@ INSERT INTO `gallery` (`id_gallery`, `id_product`, `image_gallery`, `created_at`
 CREATE TABLE `ingredients` (
   `id_ingredient` int(20) UNSIGNED NOT NULL,
   `id_unit` int(50) NOT NULL,
-  `name_ingredient` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_ingredient` varchar(255) NOT NULL,
   `quantity_ingredient` float NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -389,7 +348,7 @@ INSERT INTO `ingredients` (`id_ingredient`, `id_unit`, `name_ingredient`, `quant
 
 CREATE TABLE `migrations` (
   `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `migration` varchar(255) NOT NULL,
   `batch` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -417,11 +376,11 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 
 CREATE TABLE `news` (
   `id_new` int(10) UNSIGNED NOT NULL,
-  `image_new` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title_new` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug_new` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `subtitle_new` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `content_new` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_new` text NOT NULL,
+  `title_new` varchar(255) NOT NULL,
+  `slug_new` varchar(255) NOT NULL,
+  `subtitle_new` text DEFAULT NULL,
+  `content_new` text NOT NULL,
   `view_new` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -451,8 +410,8 @@ INSERT INTO `news` (`id_new`, `image_new`, `title_new`, `slug_new`, `subtitle_ne
 CREATE TABLE `notes` (
   `id_note` int(10) UNSIGNED NOT NULL,
   `id_supplier` int(11) NOT NULL,
-  `code_note` varchar(6) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name_note` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code_note` varchar(6) NOT NULL,
+  `name_note` varchar(255) NOT NULL,
   `quantity_note` int(11) NOT NULL,
   `status_note` tinyint(4) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -477,8 +436,8 @@ CREATE TABLE `notification` (
   `id_notification` int(10) UNSIGNED NOT NULL,
   `id_account` int(11) NOT NULL,
   `id_customer` int(11) NOT NULL,
-  `content` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `link` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` varchar(255) NOT NULL,
+  `link` varchar(255) NOT NULL,
   `is_read` tinyint(4) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -614,52 +573,21 @@ INSERT INTO `notification` (`id_notification`, `id_account`, `id_customer`, `con
 CREATE TABLE `order` (
   `id_order` int(10) UNSIGNED NOT NULL,
   `id_customer` int(11) NOT NULL,
-  `code_order` varchar(6) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name_order` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone_order` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `address_order` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email_order` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code_order` varchar(6) NOT NULL,
+  `name_order` varchar(255) NOT NULL,
+  `phone_order` varchar(10) NOT NULL,
+  `address_order` text NOT NULL,
+  `email_order` varchar(255) NOT NULL,
   `subtotal_order` int(11) NOT NULL,
   `fee_ship` int(11) NOT NULL,
   `fee_discount` int(11) NOT NULL,
+  `payment_order` varchar(255) NOT NULL,
   `total_order` int(11) NOT NULL,
   `status_order` tinyint(4) NOT NULL,
   `date_updated` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Đang đổ dữ liệu cho bảng `order`
---
-
-INSERT INTO `order` (`id_order`, `id_customer`, `code_order`, `name_order`, `phone_order`, `address_order`, `email_order`, `subtotal_order`, `fee_ship`, `fee_discount`, `total_order`, `status_order`, `date_updated`, `created_at`, `updated_at`) VALUES
-(41, 1, 'B88DCB', 'Bảo Sơn', '0386278912', '40 Ngõ 3 Cầu Bươu, Xã Tả Thanh Oai, Huyện Thanh Trì, Hà Nội, Việt Nam', 'baooson3005@gmail.com', 525000, 6000, 0, 531000, 3, '2023-12-15', '2023-10-31 08:52:50', '2023-12-15 13:49:51'),
-(42, 1, '28J27Q', 'Bảo Sơn', '0386278912', '3/235 Ngõ 235 Yên Hòa, Phường Yên Hòa, Quận Cầu Giấy, Hà Nội, Việt Nam', 'baooson3005@gmail.com', 35000, 12000, 15000, 32000, 3, '2023-10-31', '2023-10-31 09:26:07', '2023-10-31 10:17:37'),
-(43, 0, 'IZ4VFN', 'kiều đặng bảo sơn', '0386278998', 'Đường Vũ Tông Phan, Phường Khương Đình, Quận Thanh Xuân, Hà Nội, Việt Nam', 'bokazem69@gmail.com', 56000, 12000, 0, 68000, 3, '2023-11-01', '2023-11-01 16:07:31', '2023-11-01 16:08:16'),
-(44, 0, 'HMLJEE', 'Tuấn', '0386278998', 'Phố Cửa Nam, Phường Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'baooson3005@gmail.com', 35000, 7000, 0, 42000, 3, '2023-11-01', '2023-11-01 16:15:13', '2023-11-01 16:24:32'),
-(45, 0, '703NZG', 'Nga', '0386278912', 'Hồ Thủ Lệ, Phố Kim Mã, Phường Ngọc Khánh, Quận Ba Đình, Hà Nội, Việt Nam', 'toilaone12@gmail.com', 245000, 6000, 0, 251000, 3, '2023-11-01', '2023-11-01 16:23:43', '2023-11-01 16:24:11'),
-(46, 0, 'XF2JZS', 'kiều đặng bảo sơn', '0386278998', 'Phố Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'bokazem69@gmail.com', 220000, 7000, 0, 227000, 3, '2023-11-02', '2023-11-02 15:46:41', '2023-11-02 15:48:50'),
-(47, 1, '97F655', 'Bảo Sơn', '0386278912', 'Phố Vũ Tông Phan, Phường Khương Trung, Quận Thanh Xuân, Hà Nội, Việt Nam', 'baooson3005@gmail.com', 210000, 12000, 0, 220000, 3, '2023-11-02', '2023-11-02 15:48:30', '2023-11-02 15:49:02'),
-(48, 1, 'B4SWSQ', 'Bảo Sơn', '0386278912', 'Phố Cửa Nam, Phường Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'toilaone12@gmail.com', 153000, 7000, 30600, 129400, 3, '2023-11-02', '2023-11-02 16:00:37', '2023-11-02 16:01:00'),
-(49, 1, '5FUNN5', 'Bảo Sơn', '0386278912', 'Phố Cửa Nam, Phường Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'baooson3005@gmail.com', 78000, 7000, 0, 85000, 3, '2023-11-02', '2023-11-02 16:04:30', '2023-11-02 16:04:44'),
-(50, 1, 'UCSTGD', 'Bảo Sơn', '0386278912', 'Bún Đậu Mắm Tôm - 9 Lô 5 Đền Lừ, 9 Đường Đền Lừ 1, Phường Hoàng Văn Thụ, Quận Hoàng Mai, Hà Nội, Việt Nam', 'bokazem69@gmail.com', 243000, 10000, 0, 253000, 3, '2023-11-05', '2023-11-05 16:55:30', '2023-11-05 16:55:42'),
-(51, 0, 'EVFXC1', 'kiều đặng bảo sơn', '0386278998', 'Tân Trào, Phố Đào Tấn, Phường Cống Vị, Quận Ba Đình, Hà Nội, Việt Nam', 'toilaone12@gmail.com', 35000, 6000, 0, 41000, 3, '2023-12-15', '2023-11-24 16:54:12', '2023-12-15 13:53:41'),
-(52, 0, 'BB9WEM', 'kiều đặng bảo sơn', '0386278998', 'Đường Nghĩa Dũng, Phường Phúc Xá, Quận Ba Đình, Hà Nội, Việt Nam', 'nga@gmail.com', 40000, 10000, 0, 50000, 0, NULL, '2023-11-24 16:56:37', '2023-11-24 16:56:37'),
-(53, 0, 'JZH21S', 'abc', '0386278993', 'Bệnh Viện K - Co So Tan Trieu, Phố Quán Sứ, Phường Hàng Bông, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'bokazem69@gmail.com', 40000, 8000, 0, 48000, 0, NULL, '2023-11-24 17:03:35', '2023-11-24 17:03:35'),
-(54, 1, '22P1L6', 'Bảo Sơn', '0386278912', 'Phố Cửa Nam, Phường Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'bokazem69@gmail.com', 35000, 7000, 0, 42000, 3, '2023-11-27', '2023-11-27 14:34:35', '2023-11-27 14:37:07'),
-(55, 2, '34AQI4', 'Tuấn', '0333112333', 'Ngõ 123 Trung Kính, Phường Trung Hòa, Quận Cầu Giấy, Hà Nội, Việt Nam', 'toilaone12@gmail.com', 80000, 12000, 0, 92000, 3, '2023-11-27', '2023-11-27 15:02:32', '2023-11-27 15:07:17'),
-(56, 1, 'B1MWG2', 'Bảo Sơn', '0386278912', 'Phố Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'baooson3005@gmail.com', 6930000, 7000, 0, 6937000, 3, '2023-12-15', '2023-11-30 16:50:10', '2023-12-15 13:49:51'),
-(57, 1, 'UV50IH', 'Bảo Sơn', '0386278912', 'Phố Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'bokazem69@gmail.com', 230000, 7000, 0, 237000, 2, '2023-12-03', '2023-12-02 18:12:20', '2023-12-03 16:23:33'),
-(58, 1, 'VF6Q1I', 'Bảo Sơn', '0386278912', 'Phố Vũ Tông Phan, Phường Khương Đình, Quận Thanh Xuân, Hà Nội, Việt Nam', 'anh@gmail.com', 35000, 12000, 0, 47000, 3, '2023-12-15', '2023-12-14 01:57:50', '2023-12-15 13:49:51'),
-(59, 1, 'USM7PL', 'Tuấn Anh', '0339912333', 'Ngõ 123 Yên Xá, Xã Tân Triều, Huyện Thanh Trì, Hà Nội, Việt Nam', 'nga@gmail.com', 305000, 12000, 0, 317000, 3, '2023-12-15', '2023-12-14 01:58:42', '2023-12-15 13:49:51'),
-(60, 0, '927EJ1', 'kiều đặng bảo sơn', '0386278998', '333store, Phố Ao Sen, Phường Mộ Lao, Quận Hà Đông, Hà Nội, Việt Nam', '123@gmail', 70000, 12000, 0, 82000, 3, '2023-12-15', '2023-12-14 01:59:36', '2023-12-15 13:49:51'),
-(61, 0, '9CELRO', 'kiều đặng bảo sơn', '0386278998', 'Phố Vũ Tông Phan, Phường Khương Đình, Quận Thanh Xuân, Hà Nội, Việt Nam', 'bokazem69@gmail.com', 155000, 12000, 0, 167000, 3, '2023-12-15', '2023-12-14 02:15:34', '2023-12-15 13:49:51'),
-(62, 0, 'CGG2B2', 'kiều đặng bảo sơn', '0386278998', 'Phố Vũ Tông Phan, Phường Khương Đình, Quận Thanh Xuân, Hà Nội, Việt Nam', 'nga@gmail.com', 175000, 12000, 0, 187000, 3, '2023-12-15', '2023-12-15 13:52:21', '2023-12-15 13:54:19'),
-(63, 0, 'YDR4AC', 'nam anh', '0386278998', 'Phố Nghĩa Tân, Phường Nghĩa Tân, Quận Cầu Giấy, Hà Nội, Việt Nam', 'namanh@gmail.com', 105000, 8000, 0, 113000, 3, '2023-12-15', '2023-12-15 13:53:09', '2023-12-15 13:53:22'),
-(64, 3, 'TP7I6M', 'Nga', '0389911233', 'Phố Cửa Nam, Phường Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'nga@gmail.com', 267000, 21000, 0, 288000, 0, '2023-12-15', '2023-12-15 14:13:58', '2023-12-15 14:13:58'),
-(65, 3, 'GRIWGA', 'Nga', '0331123312', 'Phố Cửa Nam, Phường Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'nga@gmail.com', 89000, 24000, 100000, 13000, 1, '2023-12-15', '2023-12-15 14:48:47', '2023-12-15 14:50:08'),
-(66, 3, 'QAGA2R', 'Nga', '0386278998', 'Phố Cửa Nam, Quận Hoàn Kiếm, Hà Nội, Việt Nam', 'nga@gmail.com', 400000, 24000, 0, 424000, 3, '2023-12-15', '2023-12-15 15:23:21', '2023-12-15 15:28:04');
 
 -- --------------------------------------------------------
 
@@ -670,12 +598,12 @@ INSERT INTO `order` (`id_order`, `id_customer`, `code_order`, `name_order`, `pho
 CREATE TABLE `product` (
   `id_product` int(10) UNSIGNED NOT NULL,
   `id_category` int(11) NOT NULL,
-  `image_product` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name_product` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `subname_product` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `slug_product` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_product` text NOT NULL,
+  `name_product` varchar(255) NOT NULL,
+  `subname_product` varchar(255) DEFAULT NULL,
+  `slug_product` varchar(255) NOT NULL,
   `price_product` int(11) NOT NULL,
-  `description_product` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description_product` text DEFAULT NULL,
   `number_reviews_product` int(11) DEFAULT NULL,
   `is_special` tinyint(4) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -718,7 +646,7 @@ INSERT INTO `product` (`id_product`, `id_category`, `image_product`, `name_produ
 CREATE TABLE `recipe` (
   `id_recipe` int(10) UNSIGNED NOT NULL,
   `id_product` int(11) NOT NULL,
-  `component_recipe` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `component_recipe` text NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -753,8 +681,8 @@ INSERT INTO `recipe` (`id_recipe`, `id_product`, `component_recipe`, `created_at
 CREATE TABLE `review` (
   `id_review` int(10) UNSIGNED NOT NULL,
   `id_product` int(11) NOT NULL,
-  `name_review` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content_review` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_review` varchar(255) NOT NULL,
+  `content_review` text NOT NULL,
   `rating_review` smallint(1) DEFAULT NULL,
   `id_reply` int(11) DEFAULT NULL,
   `is_update` tinyint(4) NOT NULL,
@@ -783,7 +711,7 @@ INSERT INTO `review` (`id_review`, `id_product`, `name_review`, `content_review`
 
 CREATE TABLE `role` (
   `id_role` int(10) UNSIGNED NOT NULL,
-  `name_role` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_role` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -804,9 +732,9 @@ INSERT INTO `role` (`id_role`, `name_role`, `created_at`, `updated_at`) VALUES
 
 CREATE TABLE `slide` (
   `id_slide` int(10) UNSIGNED NOT NULL,
-  `image_slide` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name_slide` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug_slide` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_slide` text NOT NULL,
+  `name_slide` varchar(255) NOT NULL,
+  `slug_slide` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -854,9 +782,9 @@ INSERT INTO `statistic` (`id_statistic`, `quantity_statistic`, `price_statistic`
 
 CREATE TABLE `supplier` (
   `id_supplier` int(10) UNSIGNED NOT NULL,
-  `name_supplier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone_supplier` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `address_supplier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_supplier` varchar(255) NOT NULL,
+  `phone_supplier` varchar(10) NOT NULL,
+  `address_supplier` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -878,8 +806,8 @@ INSERT INTO `supplier` (`id_supplier`, `name_supplier`, `phone_supplier`, `addre
 
 CREATE TABLE `units` (
   `id_unit` int(10) UNSIGNED NOT NULL,
-  `fullname_unit` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `abbreviation_unit` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fullname_unit` varchar(255) NOT NULL,
+  `abbreviation_unit` varchar(10) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -903,7 +831,7 @@ INSERT INTO `units` (`id_unit`, `fullname_unit`, `abbreviation_unit`, `created_a
 
 CREATE TABLE `websockets_statistics_entries` (
   `id` int(10) UNSIGNED NOT NULL,
-  `app_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `app_id` varchar(255) NOT NULL,
   `peak_connection_count` int(11) NOT NULL,
   `websocket_message_count` int(11) NOT NULL,
   `api_message_count` int(11) NOT NULL,
@@ -1079,7 +1007,7 @@ ALTER TABLE `account`
 -- AUTO_INCREMENT cho bảng `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id_cart` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id_cart` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT cho bảng `category`
@@ -1115,7 +1043,7 @@ ALTER TABLE `detail_notes`
 -- AUTO_INCREMENT cho bảng `detail_orders`
 --
 ALTER TABLE `detail_orders`
-  MODIFY `id_detail` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
+  MODIFY `id_detail` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT cho bảng `fee`
@@ -1163,7 +1091,7 @@ ALTER TABLE `notification`
 -- AUTO_INCREMENT cho bảng `order`
 --
 ALTER TABLE `order`
-  MODIFY `id_order` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id_order` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT cho bảng `product`
