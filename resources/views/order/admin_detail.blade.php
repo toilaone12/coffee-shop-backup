@@ -146,9 +146,9 @@
                                             <img loading="lazy" src="{{ asset($one->image_product) }}" class="image" width="120" height="120" alt="" srcset="">
                                         </td>
                                         <td class="name">{{$one->name_product}}</td>
-                                        <td 
-                                            class="quantity" 
-                                            data-quantity="{{$one->quantity_product}}" 
+                                        <td
+                                            class="quantity"
+                                            data-quantity="{{$one->quantity_product}}"
                                             data-id="{{$one->id_detail}}"
                                         >
                                             {{$one->quantity_product}}
@@ -182,6 +182,9 @@
                                 @foreach($listStatus as $key => $status)
                                 <a href="{{route('order.change',['id' => $order->id_order,'status' => $key])}}" class="w-100 btn btn-primary d-block {{$key > 1 ? 'mt-3': ''}} {{$key == $order->status_order || $key != intval($order->status_order) + 1 ? 'disabled' : ''}}">{{$status}}</a>
                                 @endforeach
+                                @if ($order->status_order == 0 || $order->status_order == 1)
+                                <a href="{{route('order.change',['id' => $order->id_order,'status' => 4, 'type' => 2])}}" class="w-100 btn btn-primary d-block mt-3">Hủy đơn hàng</a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -203,7 +206,7 @@
                 <div class="modal-body">
                     <div class="card">
                         <div class="card-body form-invoice">
-        
+
                             <div class="row">
                                 <div class="col-xl-12 fs-30">
                                     DUONG Coffee
@@ -260,7 +263,7 @@
                                     </ul>
                                 </div>
                             </div>
-                         
+
                         </div>
                     </div>
                 </div>

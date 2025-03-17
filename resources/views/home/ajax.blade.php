@@ -471,7 +471,7 @@
                     'Bạn phải nhập địa chỉ để chúng tôi kiểm tra phí vận chuyển',
                     'warning',
                     () => {});
-            } else if (payment == 2 && address == '') {
+            } else if ((payment == 2 || payment == 3) && address == '') {
                 swalNotification(
                     'Thông báo đặt hàng',
                     'Bạn phải nhập địa chỉ để chúng tôi kiểm tra phí vận chuyển',
@@ -484,8 +484,8 @@
                     'warning',
                     () => {});
             } else {
-                let url = "{{route('order.apply')}}";
-                let method = "POST";
+                let url = "{{route('order.check')}}";
+                let method = "GET";
                 let headers = {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
@@ -501,15 +501,26 @@
                     total: total,
                     payment: payment
                 }
-                callAjax(url, method, data, headers,
+                callAjax(url, method, {}, headers,
                     (data) => {
-                        if (data.res == 'warning') {
-                            $('.error-fullname-order').text(data.status.fullname_order);
-                            $('.error-phone-order').text(data.status.phone_order);
-                            $('.error-address-order').text(data.status.address_order);
-                            $('.error-email-order').text(data.status.email_order);
-                        } else if (data.res == 'success') {
-                            location.href = '{{route("order.home")}}';
+                        if (data.res == 'success') {
+                            callAjax(url, method, {}, headers,
+                                (data) => {
+                                    if (data.res == 'warning') {
+                                        $('.error-fullname-order').text(data.status.fullname_order);
+                                        $('.error-phone-order').text(data.status.phone_order);
+                                        $('.error-address-order').text(data.status.address_order);
+                                        $('.error-email-order').text(data.status.email_order);
+                                    } else if (data.res == 'success') {
+                                        location.href = '{{route("order.home")}}';
+                                    }
+                                },
+                                (err) => {
+                                    console.log(err);
+                                }
+                            );
+                        } else if (data.res == 'fail') {
+                            swalNotiWithHTML(data.title, data.status, data.icon, () => {});
                         }
                     },
                     (err) => {
@@ -553,7 +564,7 @@
                                 });
                             } else {
                                 let url = data.code;
-                                console.log(data);
+                                // console.log(data);
 
                                 // let dataArray = [{
                                 //         'id': data.id,
@@ -565,9 +576,9 @@
                                 // // Chuyển đổi mảng thành chuỗi JSON
                                 // let dataToSend = JSON.stringify(dataArray);
                                 // socket.send(dataToSend);
-                                // swalNotification(data.title, data.status, data.icon, () => {
-                                //     location.href = '{{route("page.home")}}'
-                                // })
+                                swalNotification(data.title, data.status, data.icon, () => {
+                                    location.href = '{{route("page.home")}}'
+                                })
                             }
                         }
                     }
